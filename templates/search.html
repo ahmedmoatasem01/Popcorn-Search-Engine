@@ -1,0 +1,1363 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Movie Search Engine</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #121212;
+    color: white;
+    transition: background 0.3s, color 0.3s;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+  }
+
+  header {
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #111;
+  }
+  .right-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  header h1 { font-size: 2rem; }
+  .theme-switch {
+    width: 40px;
+    height: 22px;
+    background-color: #444;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+  }
+  .theme-switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border-radius: 50%;
+    transition: left 0.3s;
+  }
+  body.light .theme-switch::before { left: 20px; }
+  .clock {
+    font-size: 1rem;
+    color: #ccc;
+    min-width: 70px;
+    text-align: right;
+  }
+  #languageToggle {
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #fff;
+    color: #111;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  body.light #languageToggle {
+    background-color: #333;
+    color: white;
+  }
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+  }
+  .search-wrapper {
+    background: white;
+    color: black;
+    display: flex;
+    align-items: center;
+    border-radius: 30px;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    max-width: 700px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    gap: 0.5rem;
+  }
+  .search-wrapper input[type="text"] {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 0.6rem;
+  }
+  .icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .icon-button svg {
+    width: 24px;
+    height: 24px;
+    fill: #333;
+    transition: transform 0.2s, fill 0.2s;
+  }
+  .icon-button:hover svg,
+  .icon-button:active svg {
+    fill: crimson;
+  }
+  body.light .icon-button svg {
+    fill: #333;
+  }
+  body.light .icon-button:hover svg,
+  body.light .icon-button:active svg {
+    fill: crimson;
+  }
+  #settingsBtn svg {
+    fill: white;
+  }
+  #settingsBtn:hover svg {
+    fill: crimson;
+    transform: rotate(40deg);
+  }
+  body.light #settingsBtn svg {
+    fill: #333;
+  }
+  body.light #settingsBtn:hover svg {
+    fill: crimson;
+    transform: rotate(40deg);
+  }
+  .red-search-btn {
+    background-color: crimson;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .red-search-btn:hover { background-color: darkred; }
+  #imgSearchBtn {
+    padding: 0.4rem 0.8rem;
+    background-color: crimson;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+  }
+  #uploadBox {
+    border: 2px dashed #999;
+    margin-top: 2rem;
+    padding: 1rem;
+    text-align: center;
+    width: 100%;
+    max-width: 700px;
+    border-radius: 10px;
+  }
+  #uploadBox.dragover {
+    background-color: #222;
+    border-color: crimson;
+  }
+  .status {
+    margin-top: 1rem;
+    font-style: italic;
+    color: crimson;
+  }
+  body.light {
+    background-color: #f9f9f9;
+    color: black;
+  }
+  body.light header {
+    background-color: #eaeaea;
+    color: #111;
+  }
+  body.light .clock { color: #333; }
+  body.light .search-wrapper {
+    background-color: #fff;
+    color: black;
+  }
+  footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: #aaa;
+    background-color: #111;
+    margin-top: 3rem;
+  }
+  body.light footer {
+    background-color: #eaeaea;
+    color: #444;
+  }
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 1rem;
+    top: 4.2rem;
+    background: #1a1a1a;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    overflow: hidden;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  .dropdown-menu.show {
+    display: block;
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .dropdown-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .dropdown-menu button:hover {
+    background-color: #333;
+  }
+
+
+  .settings-panel {
+        position: fixed;
+        top: 70px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        z-index: 1001;
+        display: none;
+      }
+
+
+  select, button {
+    margin: 10px 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background-color: #333;
+    color: white;
+    font-size: 14px;
+  }
+
+  select:hover, button:hover {
+    background-color: #555;
+    cursor: pointer;
+  }
+
+  video#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    display: none;
+  }
+  .settings-panel {
+    position: absolute;
+    top: 100px; /* push below the navbar */
+    right: 30px; /* stick to the right edge */
+    width: 250px; /* set a fixed width */
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1001;
+    display: none;
+  }
+
+
+
+  select, button {
+    margin: 10px 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background-color: #333;
+    color: white;
+    font-size: 14px;
+  }
+
+  select:hover, button:hover {
+    background-color: #555;
+    cursor: pointer;
+  }
+
+  video#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    display: none;
+  }
+
+  .transparent-header, .transparent-footer {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .transparent-ui {
+    background-color: transparent !important;
+    backdrop-filter: blur(6px);
+    box-shadow: none !important;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease;
+  }
+  html, body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* For WebKit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: crimson;
+  border-radius: 10px;
+  border: 2px solid #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: darkred;
+}
+
+/* For Firefox */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: crimson #1a1a1a;
+}
+
+.watchlist-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  z-index: 9999;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+}
+.watchlist-panel h3 {
+  margin-bottom: 10px;
+}
+.watchlist-panel .movie-card {
+  border-bottom: 1px solid #555;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+.watchlist-panel iframe {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+.watchlist-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  z-index: 9999;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+  scroll-behavior: smooth;
+}
+
+.watchlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.watchlist-header button {
+  background: crimson;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.watchlist-panel .movie-card {
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.watchlist-panel iframe {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+
+    </style>
+<style>
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .modal-content {
+    background-color: #111;
+    padding: 20px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 700px;
+    position: relative;
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+
+
+
+  .status {
+  margin-top: 1rem;
+  font-style: italic;
+  color: white;
+  font-weight: bold;
+}
+
+body.light .status {
+  color: black;
+}
+
+
+
+/* Refined Autocomplete Dropdown */
+.suggestion-box {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-radius: 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  z-index: 1000;
+  color: black;
+  font-size: 16px;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+}
+
+/* Each suggestion item */
+.suggestion-box div {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Hover effect */
+.suggestion-box div:hover {
+  background-color: #f1f1f1;
+}
+
+.search-wrapper {
+  position: relative;
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  border-radius: 30px;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  gap: 0.5rem;
+}
+
+.suggestion-box::-webkit-scrollbar {
+  width: 8px;
+}
+.suggestion-box::-webkit-scrollbar-thumb {
+  background-color: crimson;
+  border-radius: 8px;
+}
+
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 0.8s linear infinite;
+  margin: 10px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+  </style>
+  
+  </head>
+  <body>
+    <video id="bg-video" loop muted autoplay></video>
+
+    <div class="settings-panel">
+      <h3>Customize Appearance</h3>
+    
+      <label>Background Image:</label><br>
+      <select id="wallpaper-select">
+        <option value="">Default</option>
+        <option value="images/1.jpg">Wallpaper 1</option> 
+        <option value="images/2.jpg">Wallpaper 2</option>
+        <option value="images/3.jpg">Wallpaper 3</option>
+        <option value="images/4.jpg">Wallpaper 4</option>
+        <option value="images/5.jpg">Wallpaper 5</option>
+        <option value="images/6.jpg">Wallpaper 6</option>
+        <option value="images/7.jpg">Wallpaper 7</option>
+        <option value="images/8.jpg">Wallpaper 8</option>
+        <option value="images/9.jpg">Wallpaper 9</option>
+        <option value="images/10.jpg">Wallpaper 10</option>
+        <option value="images/11.jpg">Wallpaper 11</option>
+        <option value="images/12.jpg">Wallpaper 12</option>
+        <option value="images/13.jpg">Wallpaper 13</option>
+        <option value="images/14.jpg">Wallpaper 14</option>
+        <option value="images/15.jpg">Wallpaper 15</option>
+
+
+
+
+      </select><br>
+    
+      <label>Font:</label><br>
+      <select id="font-select">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Georgia">Georgia</option>
+      </select><br>
+    
+      <label>Video Background:</label><br>
+      <select id="video-select">
+        <option value="">None</option>
+        <option value="images/vid1.mp4">Video 1</option>
+        <option value="images/vid2.mp4">Video 2</option>
+        <option value="video3.mp4">Video 3</option>
+      </select><br>
+    
+      <label>Enable Video Background:</label>
+      <input type="checkbox" id="toggle-video"><br>
+    
+      <div style="margin-top: 10px; display: inline-flex; gap: 10px; align-items: center;">
+        <button onclick="resetDefaults()">Reset to Default</button>
+        <button onclick="closeAppearance()" style="background-color: crimson; color: white;">Close</button>
+      </div>
+      
+    </div>
+    
+
+    <header>
+      <h1>🍿 POPCORN QUERY</h1>
+      <div class="right-header">
+        <div class="clock" id="clockDisplay">--:--:--</div>
+        <div id="themeToggle" class="theme-switch" title="Toggle Theme"></div>
+        <select id="languageToggle" title="Language">
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+        <button class="icon-button" id="settingsBtn" title="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24">
+            <path d="M19.14,12.94c0-.31.03-.62.03-.94s-.02-.63-.03-.94l2.03-1.58c.18-.14.23-.4.11-.61l-1.92-3.32c-.12-.21-.38-.3-.6-.22l-2.39.96a7.09,7.09,0,0,0-1.63-.94L14.5,2.81a.488.488,0,0,0-.48-.31H9.98a.5.5,0,0,0-.48.31L8.75,5.35a6.96,6.96,0,0,0-1.63.94l-2.39-.96a.5.5,0,0,0-.6.22L2.21,9.17a.495.495,0,0,0,.11.61L4.35,11.36c-.01.31-.03.63-.03.94s.02.63.03.94L2.32,14.82a.495.495,0,0,0-.11.61l1.92,3.32c.12.21.38.3.6.22l2.39-.96c.5.38,1.04.71,1.63.94l.75,2.54a.5.5,0,0,0,.48.31h4.04a.5.5,0,0,0,.48-.31l.75-2.54a7.09,7.09,0,0,0,1.63-.94l2.39.96c.22.09.48,0,.6-.22l1.92-3.32a.495.495,0,0,0-.11-.61ZM12,15.5c-1.93,0-3.5-1.57-3.5-3.5s1.57-3.5,3.5-3.5,3.5,1.57,3.5,3.5-1.57,3.5-3.5,3.5Z"/>
+          </svg>
+        </button>
+        <div id="settingsMenu" class="dropdown-menu">
+          <button onclick="logout()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M16 13v-2H7V8l-5 4 5 4v-3h9zM20 3h-8v2h8v14h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            Logout
+          </button>
+          <button onclick="openAppearance()">
+            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 .45-.05.89-.14 1.31l1.69 1.3C19.84 13.06 20 12.55 20 12c0-4.42-3.58-8-8-8zm6.14 6.94c-.29.59-.64 1.14-1.05 1.64l1.44 1.12c.37-.53.7-1.1.98-1.7l-1.37-1.06zM12 22v-3.95c-1.57-.05-3.04-.62-4.24-1.61l-1.44 1.12c1.62 1.35 3.65 2.16 5.85 2.39zM5.86 17.06c.29-.59.64-1.14 1.05-1.64L5.47 14.3c-.37.53-.7 1.1-.98 1.7l1.37 1.06z"/></svg>
+            Appearance
+          </button>
+          <button onclick="showHistory()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3a9 9 0 1 0 8.95 10H19a7 7 0 1 1-7-7v3l4-4-4-4v3z"/></svg>
+            History
+          </button>
+          <button onclick="goToAdvancedSearch()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.32l4.39 4.39 1.41-1.41-4.39-4.39A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+            Advanced Search
+          </button>
+          
+          <hr style="margin: 6px 0; border-color: #444;">
+
+          <button onclick="toggleWatchlistPanel()">📺 Your Watchlist</button>
+
+
+
+          </div>
+          
+
+        </div>
+        
+        
+        
+      </div>
+    </header>
+    <main>
+      <div class="search-wrapper">
+    <input type="text" placeholder="Search for a movie..." id="searchInput" oninput="autoComplete()" autocomplete="off" />
+    <div id="suggestions" class="suggestion-box"></div>
+
+
+        <button class="icon-button" id="searchIconBtn" title="Quick Search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M10,2A8,8,0,1,0,18,10a8,8,0,0,0-8-8Zm0,14A6,6,0,1,1,16,10,6,6,0,0,1,10,16Zm12.7,5.3a1,1,0,0,1-1.4,0l-4.2-4.2a1,1,0,0,1,1.4-1.4l4.2,4.2A1,1,0,0,1,22.7,21.3Z"/>
+          </svg>
+        </button>
+        <button class="icon-button" id="micBtn" title="Voice Search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 14a3 3 0 003-3V5a3 3 0 00-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 0014 0h-2zm-5 8a7 7 0 007-7h-2a5 5 0 01-10 0H5a7 7 0 007 7zm-1 2h2v2h-2z"/>
+          </svg>
+        </button>
+        <input type="file" id="imgInput" accept="image/*" hidden />
+        <button class="icon-button" id="imgBtn" title="Upload Image">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M20 5h-3.2l-1.7-2.2c-.2-.3-.5-.5-.8-.5H9.7c-.3 0-.6.2-.8.5L7.2 5H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zM12 17a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/>
+          </svg>
+        </button>
+        <button id="searchBtn" class="red-search-btn">Search</button>
+        <select id="search-method">
+          <option value="semantic" selected>Semantic (BM25 + MiniLM)</option>
+          <option value="bm25">BM25</option>
+          <option value="tfidf">TF-IDF</option>
+          <option value="unigram">Unigram</option>
+
+
+        </select><br>
+      </div>
+
+      <div id="searchHistory" style="margin-top: 20px; display: none; text-align: center;"></div>
+
+
+      <button id="imgSearchBtn" style="display: none;">Search by Image</button>
+      <div id="uploadBox">
+        📂 <span id="uploadText">Drag & drop an image here or click the image icon above.</span>
+      </div>
+      <div class="status" id="statusText"></div>
+      <div id="searchResults"></div>
+
+      <h2 style="text-align: center; margin-top: 30px;">🔥 Trending This Week</h2>
+      <br>
+      <div class="trending-container" style="
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center; 
+      gap: 20px;
+      padding: 10px;
+  ">
+    {% for movie in trending_movies %}
+      <div class="movie-card" style="width: 160px; text-align: center;">
+        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" style="width: 100%; border-radius: 8px;">
+        <h4 style="margin: 8px 0; font-size: 14px;">{{ movie.title }}</h4>
+        <a href="#" onclick="openTrailer('{{ movie.trailer }}')" style="color: #00aaff; text-decoration: none;">🎬 Watch Trailer</a>
+      </div>
+    {% endfor %}
+  </div>
+  <!-- Modal Video Player -->
+<div id="trailerModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <iframe id="trailerIframe" width="100%" height="400" style="border: none;" allowfullscreen></iframe>
+  </div>
+</div>
+
+
+    </main>
+    <footer>
+      <p>Powered by <strong>Popcorn Query</strong></p>
+      <p>© 2025 <strong>PYBASE</strong>. All rights reserved.</p>
+    </footer>
+    <script>
+  const wallpaperSelect = document.getElementById("wallpaper-select");
+  const fontSelect = document.getElementById("font-select");
+  const toggleVideo = document.getElementById("toggle-video");
+  const videoElement = document.getElementById("bg-video");
+  const videoSelect = document.getElementById("video-select");
+
+  function applySettings() {
+    const wallpaper = localStorage.getItem("wallpaper");
+    const font = localStorage.getItem("font");
+    const videoEnabled = localStorage.getItem("video") === "true";
+    const videoFile = localStorage.getItem("videoFile");
+
+    const header = document.querySelector("header");
+    const footer = document.querySelector("footer");
+
+    if (wallpaper) {
+      document.body.style.backgroundImage = `url('${wallpaper}')`;
+      header.classList.add("transparent-header");
+      footer.classList.add("transparent-footer");
+    } else {
+      document.body.style.backgroundImage = "none";
+      header.classList.remove("transparent-header");
+      footer.classList.remove("transparent-footer");
+    }
+
+    if (font) {
+  document.body.style.fontFamily = font;
+} else {
+  document.body.style.fontFamily = "Arial"; // fallback if none set
+}
+
+
+    if (videoEnabled && videoFile) {
+      videoElement.src = videoFile;
+      videoElement.style.display = "block";
+      videoElement.play();
+    } else {
+      videoElement.pause();
+      videoElement.style.display = "none";
+    }
+    
+  }
+
+
+  wallpaperSelect.addEventListener("change", () => {
+    localStorage.setItem("wallpaper", wallpaperSelect.value);
+    applySettings();
+  });
+  fontSelect.addEventListener("change", () => {
+    localStorage.setItem("font", fontSelect.value);
+    applySettings();
+  });
+  toggleVideo.addEventListener("change", () => {
+    localStorage.setItem("video", toggleVideo.checked);
+    applySettings();
+  });
+  videoSelect.addEventListener("change", () => {
+    localStorage.setItem("videoFile", videoSelect.value);
+    applySettings();
+  });
+
+  function resetDefaults() {
+  localStorage.removeItem("wallpaper");
+  localStorage.removeItem("font");
+  localStorage.removeItem("video");
+  localStorage.removeItem("videoFile");
+
+  // Reset select values in UI
+  wallpaperSelect.value = "";
+  fontSelect.value = "Arial";
+  toggleVideo.checked = false;
+  videoSelect.value = "";
+
+  // Apply the default font explicitly
+  document.body.style.fontFamily = "Arial";
+
+  applySettings();
+}
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    wallpaperSelect.value = localStorage.getItem("wallpaper") || "";
+    fontSelect.value = localStorage.getItem("font") || "Arial";
+    toggleVideo.checked = localStorage.getItem("video") === "true";
+    videoSelect.value = localStorage.getItem("videoFile") || "";
+    applySettings();
+  });
+
+  function openAppearance() {
+    const panel = document.querySelector('.settings-panel');
+    panel.style.display = (panel.style.display === 'none' || !panel.style.display) ? 'block' : 'none';
+  }
+  function closeAppearance() {
+    const panel = document.querySelector('.settings-panel');
+    panel.style.display = 'none';
+  }
+
+
+      const body = document.body;
+  const micBtn = document.getElementById('micBtn');
+  const imgBtn = document.getElementById('imgBtn');
+  const imgInput = document.getElementById('imgInput');
+  const imgSearchBtn = document.getElementById('imgSearchBtn');
+  const searchIconBtn = document.getElementById('searchIconBtn');
+  const searchBtn = document.getElementById('searchBtn');
+  const statusText = document.getElementById('statusText');
+  const uploadBox = document.getElementById('uploadBox');
+  const themeToggle = document.getElementById('themeToggle');
+  const clockDisplay = document.getElementById('clockDisplay');
+  const searchInput = document.getElementById("searchInput");
+  const languageToggle = document.getElementById("languageToggle");
+  const uploadText = document.getElementById("uploadText");
+  const settingsBtn = document.getElementById("settingsBtn");
+  const settingsMenu = document.getElementById("settingsMenu");
+
+  // Theme toggle
+  // Load saved theme
+  if (localStorage.getItem("theme") === "light") {
+    body.classList.add("light");
+  }
+
+  // Toggle and save theme
+  themeToggle.addEventListener('click', () => {
+    body.classList.toggle('light');
+    localStorage.setItem("theme", body.classList.contains("light") ? "light" : "dark");
+  });
+
+  // Clock update
+  setInterval(() => {
+    clockDisplay.textContent = new Date().toTimeString().split(' ')[0];
+  }, 1000);
+
+  let recognition;
+let isListening = false;
+
+micBtn.addEventListener('click', () => {
+  // Check browser support
+  if (!('webkitSpeechRecognition' in window)) {
+    statusText.textContent = 'Voice recognition not supported.';
+    return;
+  }
+
+  // Prevent duplicate sessions
+  if (isListening) {
+    recognition.abort();
+    return;
+  }
+
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.continuous = false;
+
+  recognition.onstart = () => {
+    isListening = true;
+    statusText.textContent = 'Listening... 🎤';
+    micBtn.disabled = true;
+    console.log('[INFO] Speech recognition started');
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    searchInput.value = transcript;
+    statusText.textContent = '';
+    searchBtn.click(); 
+    console.log('[INFO] Result:', transcript);
+  };
+
+  recognition.onerror = (event) => {
+    console.error('[ERROR] Speech:', event.error);
+    statusText.textContent = 'Error: ' + event.error;
+    isListening = false;
+    micBtn.disabled = false;
+  };
+
+  recognition.onend = () => {
+    console.log('[INFO] Speech recognition ended');
+    if (statusText.textContent === 'Listening... 🎤') {
+      statusText.textContent = 'No voice detected.';
+    }
+    isListening = false;
+    micBtn.disabled = false;
+  };
+
+  recognition.start();
+});
+
+
+
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("watchlist-btn")) {
+    const title = e.target.getAttribute("data-title");
+    const poster = e.target.getAttribute("data-poster");
+    const text = e.target.getAttribute("data-text");
+    const trailer = e.target.getAttribute("data-trailer");
+
+    const index = watchlist.findIndex(item => item.title === title);
+    if (index === -1) {
+      watchlist.push({ title, poster, text, trailer });
+    } else {
+      watchlist.splice(index, 1);
+    }
+
+    renderWatchlistPanel();
+
+    // Refresh buttons only if results are from real search
+    const isSearchPage = document.getElementById("searchResults").children.length > 0;
+    if (isSearchPage) triggerSearch();
+    else showTestCases(); // for mock cases
+  }
+
+  // ✅ FIX: close watchlist panel when ❌ clicked
+  if (e.target.id === "closeWatchlistBtn") {
+    document.getElementById("watchlistPanel").style.display = "none";
+  }
+});
+
+
+let watchlist = [];
+function renderWatchlistPanel() {
+  const panel = document.getElementById("watchlistContent");
+  if (watchlist.length === 0) {
+    panel.innerHTML = "<p>No movies added.</p>";
+    return;
+  }
+
+
+  panel.innerHTML = "";
+  watchlist.forEach(movie => {
+    const trailerEmbed = movie.trailer
+      ? `<iframe src="https://www.youtube.com/embed/${movie.trailer.split("v=")[1]}" frameborder="0" allowfullscreen style="width: 100%; height: 200px; border-radius: 8px; margin-top: 10px;"></iframe>`
+      : `<em>No trailer</em>`;
+
+   panel.innerHTML += `
+  <div class="movie-card" style="position: relative;">
+    <strong>${movie.title}</strong>
+    <br>
+    <img src="${movie.poster}" style="width: 100px; border-radius: 6px;" />
+    <p>${movie.text}</p>
+    ${trailerEmbed}
+    <button 
+      class="remove-watchlist-btn" 
+      data-title="${movie.title}" 
+      style="margin-top: 10px; background: darkred; border: none; color: white; padding: 6px 10px; border-radius: 5px; cursor: pointer;">
+      ❌ Remove from Watchlist
+    </button>
+  </div>
+`;
+
+  });
+}
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("remove-watchlist-btn")) {
+    const titleToRemove = e.target.getAttribute("data-title");
+    watchlist = watchlist.filter(movie => movie.title !== titleToRemove);
+    renderWatchlistPanel();
+  }
+});
+
+function toggleWatchlistPanel() {
+  const panel = document.getElementById("watchlistPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+  renderWatchlistPanel();
+}
+
+
+function autoComplete() {
+  let query = document.getElementById("searchInput").value;
+  if (query.length < 2) {
+    document.getElementById("suggestions").innerHTML = "";
+    return;
+  }
+
+  fetch(`/api/autocomplete?query=${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+      let suggestions = data.suggestions;
+      let html = suggestions.map(s => `<div onclick="selectSuggestion('${s}')">${s}</div>`).join("");
+      document.getElementById("suggestions").innerHTML = html;
+    });
+}
+
+function selectSuggestion(text) {
+  document.getElementById("searchInput").value = text;
+  document.getElementById("suggestions").innerHTML = "";
+  triggerSearch(); // call your search function here
+}
+
+
+
+
+
+  // Search
+function triggerSearch() {
+  const query = searchInput.value.trim();
+  const method = document.getElementById("search-method").value;
+
+  if (!query) {
+    statusText.textContent = "Please enter a search term.";
+    return;
+  }
+
+  saveSearchHistory(query);  
+  renderSearchHistory();      
+
+
+    statusText.innerHTML = `<div class="spinner"></div>`;
+  const startTime = performance.now();
+
+
+  fetch("/api/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query: query, method: method }),
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch results");
+      return res.json();
+    })
+    .then((data) => {
+     if (!data || data.length === 0) {
+    const resultsDiv = document.getElementById("searchResults");
+    resultsDiv.innerHTML = ""; // Clear old search results
+    statusText.innerHTML = `
+      <div style="text-align: center; margin-top: 20px;">
+        <p style="color: crimson; font-weight: bold;">No results found.</p>
+      </div>
+    `;
+    return;
+}
+
+
+      statusText.textContent = "";
+      const resultsDiv = document.getElementById("searchResults");
+      resultsDiv.innerHTML = "";
+      const endTime = performance.now();
+const timeTaken = ((endTime - startTime) / 1000).toFixed(2);  // in seconds
+const resultCount = data.slice(0, 15).length;
+
+statusText.textContent = ` Found ${resultCount} results in ${timeTaken} seconds.`;
+
+
+      data.slice(0, 15).forEach((movie) => {
+        let embedHtml = "";
+
+        if (movie.trailer && movie.trailer.includes("youtube.com/watch")) {
+          const videoId = movie.trailer.split("v=")[1]?.split("&")[0];
+          const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+          embedHtml = `
+            <div class="trailer-wrapper" style="margin-top: 10px;">
+              <iframe src="${embedUrl}" 
+                      frameborder="0" allowfullscreen 
+                      style="width: 100%; max-width: 560px; height: 315px; border-radius: 10px;"></iframe>
+            </div>`;
+        } else {
+          embedHtml = `<em style="color:#aaa;">No trailer available</em>`;
+        }
+
+        const poster = movie.poster || "images/default-poster.jpg";
+        const description = movie.text || "<em>No description available.</em>";
+        const isInWatchlist = watchlist.some(item => item.title === movie.title);
+        const buttonLabel = isInWatchlist ? "✔️ In Watchlist" : "➕ Add to Watchlist";
+
+        const card = `
+          <div style="border: 1px solid #444; margin: 1rem 0; padding: 1rem; border-radius: 10px; background: rgba(0,0,0,0.7);">
+            <h2>${movie.title || "Untitled"}</h2>
+            <img src="${poster}" alt="${movie.title}" style="width: 120px; border-radius: 6px;" />
+            <div class="movie-meta">
+            <p><strong>📅 Year:</strong> ${movie.release_year || "N/A"}</p>
+            <p><strong>🎬 Genres:</strong> ${movie.genres || "N/A"}</p>
+            <p><strong>🎥 Director:</strong> ${movie.director || "N/A"}</p>
+            <p><strong>👨‍👩‍👧‍👦 Crew:</strong> ${movie.crew || "N/A"}</p>
+            <p><strong>📝 Description:</strong> ${description}</p>
+
+            </div>
+            ${embedHtml}
+
+            <button class="watchlist-btn" 
+                    data-title="${movie.title}" 
+                    data-poster="${poster}" 
+                    data-text="${movie.text}" 
+                    data-trailer="${movie.trailer}">
+              ${buttonLabel}
+            </button>
+          </div>
+        `;
+        resultsDiv.innerHTML += card;
+      });
+    })
+    
+    .catch((err) => {
+      console.error(err);
+      statusText.textContent = "An error occurred while searching.";
+    });
+}
+
+
+
+  searchIconBtn.addEventListener('click', triggerSearch);
+  searchBtn.addEventListener('click', triggerSearch);
+  searchInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') triggerSearch();
+  });
+
+  // Upload buttons
+  imgBtn.addEventListener('click', () => imgInput.click());
+  imgInput.addEventListener('change', () => {
+    if (imgInput.files.length > 0) {
+      statusText.textContent = `Selected image: ${imgInput.files[0].name}`;
+      imgSearchBtn.style.display = "inline-block";
+    }
+  });
+imgSearchBtn.addEventListener('click', () => {
+  const file = imgInput.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  statusText.textContent = "Analyzing poster... 🖼️";
+  const startTime = performance.now();
+
+  fetch("/api/image-search", {
+    method: "POST",
+    body: formData
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Image search failed");
+      return res.json();
+    })
+    .then((data) => {
+      const resultsDiv = document.getElementById("searchResults");
+      resultsDiv.innerHTML = "";
+      const endTime = performance.now();
+      const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
+
+      if (!data || data.length === 0) {
+        statusText.textContent = "No matching posters found.";
+        return;
+      }
+
+      statusText.textContent = `Found ${data.length} matches in ${timeTaken} seconds.`;
+
+      data.forEach((movie) => {
+        const poster = movie.poster || "images/default-poster.jpg";
+        const description = movie.text || "<em>No description available.</em>";
+        const trailer = movie.trailer || "#";
+        const videoId = trailer.includes("v=") ? trailer.split("v=")[1].split("&")[0] : "";
+        const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+
+        const embedHtml = embedUrl
+          ? `<iframe src="${embedUrl}" frameborder="0" allowfullscreen style="width: 100%; max-width: 560px; height: 315px; border-radius: 10px;"></iframe>`
+          : `<em style="color:#aaa;">No trailer available</em>`;
+
+        const card = `
+          <div style="border: 1px solid #444; margin: 1rem 0; padding: 1rem; border-radius: 10px; background: rgba(0,0,0,0.7);">
+            <h2>${movie.title || "Untitled"}</h2>
+            <img src="${poster}" alt="${movie.title}" style="width: 120px; border-radius: 6px;" />
+            <p style="margin-top: 0.5rem;">${description}</p>
+            ${embedHtml}
+          </div>
+        `;
+        resultsDiv.innerHTML += card;
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      statusText.textContent = "Failed to search by image.";
+    });
+
+  imgInput.value = '';
+  imgSearchBtn.style.display = "none";
+});
+
+
+  // Drag & drop
+  uploadBox.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadBox.classList.add('dragover');
+  });
+  uploadBox.addEventListener('dragleave', () => {
+    uploadBox.classList.remove('dragover');
+  });
+  uploadBox.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadBox.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      statusText.textContent = 'Image dropped: ' + file.name;
+      imgSearchBtn.style.display = "inline-block";
+    } else {
+      statusText.textContent = 'Only image files are supported.';
+    }
+  });
+
+  // Language switch
+  languageToggle.addEventListener("change", () => {
+    if (languageToggle.value === "ar") {
+      searchInput.placeholder = "ابحث عن فيلم...";
+      uploadText.textContent = "قم بسحب وإفلات صورة هنا أو اضغط على أيقونة الصورة أعلاه.";
+      searchBtn.textContent = "بحث";
+    } else {
+      searchInput.placeholder = "Search for a movie...";
+      uploadText.textContent = "Drag & drop an image here or click the image icon above.";
+      searchBtn.textContent = "Search";
+    }
+  });
+
+  // Settings menu logic
+  settingsBtn.addEventListener("click", () => {
+    settingsMenu.classList.toggle("show");
+  });
+
+  // Optional: Hide the menu if clicked outside
+  document.addEventListener("click", (e) => {
+    if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+      settingsMenu.classList.remove("show");
+    }
+  });
+
+  function logout() {
+    window.location.href = "/";
+  }
+  function openAppearance() {
+    const panel = document.querySelector('.settings-panel');
+    panel.style.display = (panel.style.display === 'none' || !panel.style.display) ? 'block' : 'none';
+  }
+
+  function showHistory() {
+  const container = document.getElementById("searchHistory");
+  if (container.style.display === "none" || !container.style.display) {
+    renderSearchHistory(); // Build the buttons
+    container.style.display = "block";
+  } else {
+    container.style.display = "none";
+  }
+}
+
+function saveSearchHistory(query) {
+  let history = JSON.parse(localStorage.getItem("searchHistory")) || [];
+  if (!history.includes(query)) {
+    history.unshift(query);
+    if (history.length > 10) history.pop();
+    localStorage.setItem("searchHistory", JSON.stringify(history));
+  }
+}
+
+function renderSearchHistory() {
+  const container = document.getElementById("searchHistory");
+  const history = JSON.parse(localStorage.getItem("searchHistory")) || [];
+
+  if (history.length === 0) {
+    container.innerHTML = "<p style='color: #ccc;'>No recent searches.</p>";
+    return;
+  }
+
+  container.innerHTML = `<h3 style="margin-bottom: 10px;">Recent Searches</h3>`;
+  history.forEach(term => {
+    const btn = document.createElement("button");
+    btn.textContent = term;
+    btn.style.margin = "5px";
+    btn.style.padding = "6px 12px";
+    btn.style.borderRadius = "20px";
+    btn.style.border = "none";
+    btn.style.background = "crimson";
+    btn.style.color = "white";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => {
+      document.getElementById("searchInput").value = term;
+      triggerSearch();
+    };
+    container.appendChild(btn);
+  });
+
+  // Optional Clear History button
+  const clearBtn = document.createElement("button");
+  clearBtn.textContent = "Clear History";
+  clearBtn.style.marginTop = "10px";
+  clearBtn.style.background = "#555";
+  clearBtn.style.color = "white";
+  clearBtn.style.border = "none";
+  clearBtn.style.padding = "5px 10px";
+  clearBtn.style.borderRadius = "5px";
+  clearBtn.onclick = () => {
+    localStorage.removeItem("searchHistory");
+    renderSearchHistory();
+  };
+  container.appendChild(document.createElement("br"));
+  container.appendChild(clearBtn);
+}
+
+
+
+
+
+  function goToAdvancedSearch() {
+    window.location.href = "/advancedsearch";
+  }
+
+
+    </script>
+    <script>
+      function openTrailer(trailerUrl) {
+        document.getElementById('trailerIframe').src = trailerUrl.replace("watch?v=", "embed/");
+        document.getElementById('trailerModal').style.display = 'flex';
+      }
+      
+      function closeModal() {
+        document.getElementById('trailerModal').style.display = 'none';
+        document.getElementById('trailerIframe').src = "";
+      }
+      </script>
+      
+    
+   <div id="watchlistPanel" class="watchlist-panel" style="display: none;">
+  <div class="watchlist-header">
+    <h3>My Watchlist</h3>
+    <button id="closeWatchlistBtn">✖</button>
+  </div>
+  <div id="watchlistContent"></div>
+</div>
+</body>
+
+  </html>

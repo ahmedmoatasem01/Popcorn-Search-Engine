@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Search</title>
+  <style>
+ * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #121212;
+  color: white;
+  transition: background 0.3s, color 0.3s;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+}
+
+body.light {
+  background-color: #f9f9f9;
+  color: black;
+}
+
+header {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #111;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+body.light header {
+  background-color: #eaeaea;
+  color: #111;
+}
+
+.right-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+header h1 {
+  font-size: 2rem;
+}
+
+.clock {
+  font-size: 1rem;
+  color: #ccc;
+  min-width: 70px;
+  text-align: right;
+}
+
+body.light .clock {
+  color: #333;
+}
+
+/* Theme Switch */
+.theme-switch {
+  width: 50px;
+  height: 26px;
+  background-color: #444;
+  border-radius: 26px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.theme-switch::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+body.light .theme-switch {
+  background-color: #ccc;
+}
+
+body.light .theme-switch::before {
+  left: 27px;
+}
+
+#languageToggle {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: none;
+  background-color: #fff;
+  color: #111;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+body.light #languageToggle {
+  background-color: #333;
+  color: white;
+}
+
+/* Icon Button */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.icon-button svg {
+  width: 24px;
+  height: 24px;
+  fill: white;
+  transition: transform 0.2s, fill 0.2s;
+}
+
+.icon-button:hover svg {
+  fill: crimson;
+  transform: rotate(40deg);
+}
+
+body.light .icon-button svg {
+  fill: #333;
+}
+
+body.light .icon-button:hover svg {
+  fill: crimson;
+}
+
+/* Dropdown */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 1rem;
+  top: 4.2rem;
+  background: #1a1a1a;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  transition: 0.3s;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-menu.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-menu button:hover {
+  background-color: #333;
+}
+
+/* Main Container */
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  background-color: #1f1f1f;
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+body.light .container {
+  background-color: #fff;
+  color: #111;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #ccc;
+}
+
+body.light label {
+  color: #333;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #999;
+  background-color: #2c2c2c;
+  color: white;
+}
+
+body.light input,
+body.light select {
+  background-color: #eee;
+  color: black;
+  border: 1px solid #ccc;
+}
+
+/* Button */
+.search-btn {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  border: none;
+  background-color: crimson;
+  color: white;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.search-btn:hover {
+  background-color: darkred;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  background-color: #111;
+  margin-top: 3rem;
+}
+
+body.light footer {
+  background-color: #eaeaea;
+  color: #444;
+}
+
+body[dir="rtl"] header {
+  direction: ltr;
+}
+
+/* Background Video */
+video#bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+  display: none;
+}
+
+/* Transparent UI */
+.transparent-header,
+.transparent-footer {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.transparent-ui {
+  background-color: transparent !important;
+  backdrop-filter: blur(6px);
+  box-shadow: none !important;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* Updated Settings Panel */
+.settings-panel {
+  position: absolute;
+  top: 80px;
+  right: 30px;
+  width: 250px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  z-index: 1001;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.settings-panel label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #eee;
+}
+
+.settings-panel select,
+.settings-panel input[type="checkbox"] {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background-color: #222;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.settings-panel select:hover {
+  background-color: #333;
+  cursor: pointer;
+}
+
+.settings-panel button {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.settings-panel button:first-of-type {
+  background-color: #444;
+  color: white;
+}
+
+.settings-panel button:first-of-type:hover {
+  background-color: #666;
+}
+
+.settings-panel button:last-of-type {
+  background-color: crimson;
+  color: white;
+}
+
+.settings-panel button:last-of-type:hover {
+  background-color: darkred;
+}
+.settings-panel input[type="checkbox"] {
+  accent-color: crimson;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+/* For WebKit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: crimson;
+  border-radius: 10px;
+  border: 2px solid #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: darkred;
+}
+
+/* For Firefox */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: crimson #1a1a1a;
+}
+
+
+#searchResults {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+
+</style>  
+</head>
+<body>
+  <video id="bg-video" loop muted autoplay></video>
+
+  <div class="settings-panel" id="appearancePanel">
+    <h3>Customize Appearance</h3>
+  
+    <label>Background Image:</label><br>
+    <select id="wallpaper-select">
+      <option value="">Default</option>
+      <option value="images/1.jpg">Wallpaper 1</option>
+      <option value="images/2.jpg">Wallpaper 2</option>
+      <option value="images/3.jpg">Wallpaper 3</option>
+      <option value="images/4.jpg">Wallpaper 4</option>
+      <option value="images/5.jpg">Wallpaper 5</option>
+      <option value="images/6.jpg">Wallpaper 6</option>
+      <option value="images/7.jpg">Wallpaper 7</option>
+      <option value="images/8.jpg">Wallpaper 8</option>
+      <option value="images/9.jpg">Wallpaper 9</option>
+      <option value="images/10.jpg">Wallpaper 10</option>
+      <option value="images/11.jpg">Wallpaper 11</option>
+      <option value="images/12.jpg">Wallpaper 12</option>
+      <option value="images/13.jpg">Wallpaper 13</option>
+
+
+
+    </select><br>
+  
+    <label>Font:</label><br>
+    <select id="font-select">
+      <option value="Arial">Arial</option>
+      <option value="Courier New">Courier New</option>
+      <option value="Georgia">Georgia</option>
+    </select><br>
+  
+    <label>Video Background:</label><br>
+    <select id="video-select">
+      <option value="">None</option>
+      <option value="images/vid1.mp4">Video 1</option>
+      <option value="images/vid2.mp4">Video 2</option>
+      <option value="video3.mp4">Video 3</option>
+    </select><br>
+  
+    <label>
+      Enable Video Background:
+      <input type="checkbox" id="toggle-video">
+    </label>
+    
+  
+    <div style="margin-top: 10px; display: inline-flex; gap: 10px; align-items: center;">
+      <button onclick="resetDefaults()">Reset to Default</button>
+      <button onclick="closeAppearance()" style="background-color: crimson; color: white;">Close</button>
+    </div>
+     
+  </div>
+  <header>
+    <h1>🍿 POPCORN QUERY</h1>
+    <div class="right-header">
+      <div class="clock" id="clockDisplay">--:--:--</div>
+      <div class="theme-switch" id="themeToggle"></div>
+      <select id="languageToggle" title="Language">
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+      </select>
+      <button class="icon-button" id="settingsBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24">
+          <path d="M19.14,12.94c0-.31.03-.62.03-.94s-.02-.63-.03-.94l2.03-1.58c.18-.14.23-.4.11-.61l-1.92-3.32c-.12-.21-.38-.3-.6-.22l-2.39.96a7.09,7.09,0,0,0-1.63-.94L14.5,2.81a.488.488,0,0,0-.48-.31H9.98a.5.5,0,0,0-.48.31L8.75,5.35a6.96,6.96,0,0,0-1.63.94l-2.39-.96a.5.5,0,0,0-.6.22L2.21,9.17a.495.495,0,0,0,.11.61L4.35,11.36c-.01.31-.03.63-.03.94s.02.63.03.94L2.32,14.82a.495.495,0,0,0-.11.61l1.92,3.32c.12.21.38.3.6.22l2.39-.96c.5.38,1.04.71,1.63.94l.75,2.54a.5.5,0,0,0,.48.31h4.04a.5.5,0,0,0,.48-.31l.75-2.54a7.09,7.09,0,0,0,1.63-.94l2.39.96c.22.09.48,0,.6-.22l1.92-3.32a.495.495,0,0,0-.11-.61ZM12,15.5c-1.93,0-3.5-1.57-3.5-3.5s1.57-3.5,3.5-3.5,3.5,1.57,3.5,3.5-1.57,3.5-3.5,3.5Z"/>
+        </svg>
+      </button>
+      <div id="settingsMenu" class="dropdown-menu">
+        <button onclick="logout()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M16 13v-2H7V8l-5 4 5 4v-3h9zM20 3h-8v2h8v14h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+          Logout
+        </button>
+        <button onclick="openAppearance()">
+          <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 .45-.05.89-.14 1.31l1.69 1.3C19.84 13.06 20 12.55 20 12c0-4.42-3.58-8-8-8zm6.14 6.94c-.29.59-.64 1.14-1.05 1.64l1.44 1.12c.37-.53.7-1.1.98-1.7l-1.37-1.06zM12 22v-3.95c-1.57-.05-3.04-.62-4.24-1.61l-1.44 1.12c1.62 1.35 3.65 2.16 5.85 2.39zM5.86 17.06c.29-.59.64-1.14 1.05-1.64L5.47 14.3c-.37.53-.7 1.1-.98 1.7l1.37 1.06z"/></svg>
+          Appearance
+        </button>
+        <button onclick="showHistory()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3a9 9 0 1 0 8.95 10H19a7 7 0 1 1-7-7v3l4-4-4-4v3z"/></svg>
+          History
+        </button>
+        <button onclick="goToNormalSearch()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.32l4.39 4.39 1.41-1.41-4.39-4.39A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+          Normal Search
+        </button>
+
+        <hr style="margin: 6px 0; border-color: #444;">
+
+        <button onclick="toggleWatchlistPanel()">📺 Your Watchlist</button>
+      </div>
+    </div>
+  </header>
+
+ <div class="container">
+  <h2 id="searchTitle">Advanced Search</h2>
+
+  <div class="form-group">
+    <label for="title">Movie Title</label>
+    <input type="text" id="title">
+  </div>
+
+  <div class="form-group">
+    <label for="year">Release Year</label>
+    <input type="number" id="year">
+  </div>
+
+  <div class="form-group">
+    <label for="genre">Genre</label>
+    <input type="text" id="genre">
+  </div>
+
+  <div class="form-group">
+    <label for="director">Director</label>
+    <input type="text" id="director">
+  </div>
+
+  <div class="form-group">
+    <label for="actor">Actor</label>
+    <input type="text" id="actor">
+  </div>
+
+  <button class="search-btn" onclick="submitAdvancedSearch()">Search</button>
+</div>
+
+
+  <footer>
+    <p>Powered by <strong>Popcorn Query</strong></p>
+    <p>© 2025 <strong>PYBASE</strong>. All rights reserved.</p>
+  </footer>
+
+  <script>
+     const wallpaperSelect = document.getElementById("wallpaper-select");
+const fontSelect = document.getElementById("font-select");
+const toggleVideo = document.getElementById("toggle-video");
+const videoElement = document.getElementById("bg-video");
+const videoSelect = document.getElementById("video-select");
+
+function applySettings() {
+  const wallpaper = localStorage.getItem("wallpaper");
+  const font = localStorage.getItem("font");
+  const videoEnabled = localStorage.getItem("video") === "true";
+  const videoFile = localStorage.getItem("videoFile");
+
+  const header = document.querySelector("header");
+  const footer = document.querySelector("footer");
+
+  if (wallpaper) {
+    document.body.style.backgroundImage = `url('${wallpaper}')`;
+    header.classList.add("transparent-header");
+    footer.classList.add("transparent-footer");
+  } else {
+    document.body.style.backgroundImage = "none";
+    header.classList.remove("transparent-header");
+    footer.classList.remove("transparent-footer");
+  }
+
+  if (font) {
+  document.body.style.fontFamily = font;
+} else {
+  document.body.style.fontFamily = "Arial"; // fallback if none set
+}
+
+
+  if (videoEnabled && videoFile) {
+    videoElement.src = videoFile;
+    videoElement.style.display = "block";
+    videoElement.play();
+  } else {
+    videoElement.pause();
+    videoElement.style.display = "none";
+  }
+  
+}
+
+
+wallpaperSelect.addEventListener("change", () => {
+  localStorage.setItem("wallpaper", wallpaperSelect.value);
+  applySettings();
+});
+fontSelect.addEventListener("change", () => {
+  localStorage.setItem("font", fontSelect.value);
+  applySettings();
+});
+toggleVideo.addEventListener("change", () => {
+  localStorage.setItem("video", toggleVideo.checked);
+  applySettings();
+});
+videoSelect.addEventListener("change", () => {
+  localStorage.setItem("videoFile", videoSelect.value);
+  applySettings();
+});
+
+function resetDefaults() {
+  localStorage.removeItem("wallpaper");
+  localStorage.removeItem("font");
+  localStorage.removeItem("video");
+  localStorage.removeItem("videoFile");
+  wallpaperSelect.value = "";
+  fontSelect.value = "Arial";
+  toggleVideo.checked = false;
+  videoSelect.value = "";
+  applySettings();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  wallpaperSelect.value = localStorage.getItem("wallpaper") || "";
+  fontSelect.value = localStorage.getItem("font") || "Arial";
+  toggleVideo.checked = localStorage.getItem("video") === "true";
+  videoSelect.value = localStorage.getItem("videoFile") || "";
+  applySettings();
+});
+
+function openAppearance() {
+  const panel = document.querySelector('.settings-panel');
+  panel.style.display = (panel.style.display === 'none' || !panel.style.display) ? 'block' : 'none';
+}
+function closeAppearance() {
+  const panel = document.getElementById('appearancePanel');
+  panel.style.display = 'none';
+}
+
+
+    const clockDisplay = document.getElementById("clockDisplay");
+    const themeToggle = document.getElementById("themeToggle");
+    const languageToggle = document.getElementById("languageToggle");
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsMenu = document.getElementById("settingsMenu");
+
+    setInterval(() => {
+      clockDisplay.textContent = new Date().toTimeString().split(" ")[0];
+    }, 1000);
+
+    if (localStorage.getItem("theme") === "light") {
+      document.body.classList.add("light");
+    }
+
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+    });
+
+    languageToggle.addEventListener("change", () => {
+      const isArabic = languageToggle.value === "ar";
+      document.body.setAttribute("dir", isArabic ? "rtl" : "ltr");
+
+      document.getElementById("searchTitle").textContent = isArabic ? "بحث متقدم" : "Advanced Search";
+      document.querySelector("label[for='title']").textContent = isArabic ? "عنوان الفيلم" : "Movie Title";
+      document.querySelector("label[for='year']").textContent = isArabic ? "سنة الإصدار" : "Release Year";
+      document.querySelector("label[for='genre']").textContent = isArabic ? "النوع" : "Genre";
+      document.querySelector("label[for='director']").textContent = isArabic ? "المخرج" : "Director";
+      document.querySelector("label[for='actor']").textContent = isArabic ? "الممثل" : "Actor";
+      document.querySelector(".search-btn").textContent = isArabic ? "ابحث" : "Search";
+    });
+
+    settingsBtn.addEventListener("click", () => {
+      settingsMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+        settingsMenu.classList.remove("show");
+      }
+    });
+
+    function logout() {
+    window.location.href = "/";
+  }
+  
+    function showHistory() { alert("Query history functionality will be added later."); }
+
+    function goToNormalSearch() {
+    window.location.href = "/search";
+  }  
+    function submitAdvancedSearch() {
+  const title = document.getElementById("title").value;
+  const year = document.getElementById("year").value;
+  const genre = document.getElementById("genre").value;
+  const director = document.getElementById("director").value;
+  const actor = document.getElementById("actor").value;
+
+  fetch("/api/advanced_search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, year, genre, director, actor }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.length === 0) {
+  let resultDiv = document.getElementById("searchResults");
+  if (!resultDiv) {
+    resultDiv = document.createElement("div");
+    resultDiv.id = "searchResults";
+    document.querySelector(".container").appendChild(resultDiv);
+  }
+  resultDiv.innerHTML = `
+    <div style="margin-top: 20px; padding: 1rem; border-radius: 8px; background: rgba(255,255,255,0.05); text-align: center;">
+      <strong style="color: crimson;">🚫 No results found. Try different filters.</strong>
+    </div>
+  `;
+  return;
+}
+
+    let resultDiv = document.getElementById("searchResults");
+    if (!resultDiv) {
+      resultDiv = document.createElement("div");
+      resultDiv.id = "searchResults";
+      document.querySelector(".container").appendChild(resultDiv);
+    }
+    resultDiv.innerHTML = "";
+
+    data.forEach(movie => {
+     const card = `
+  <div style="border: 1px solid #444; padding: 1rem; margin: 1rem 0; border-radius: 10px;">
+    <h3>${movie.Title}</h3>
+    <img src="${movie['Poster URL']}" style="width: 120px; border-radius: 6px;" />
+    <p><strong>Year:</strong> ${movie.release_year}</p>
+    <p><strong>Genres:</strong> ${movie.Genres}</p>
+    <p><strong>Director:</strong> ${movie.Director}</p>
+    <p><strong>Crew:</strong> ${movie.Crew}</p>
+${movie.Trailer && movie.Trailer.includes("youtube.com/watch") ? `
+  <div style="margin-top: 10px;">
+    <iframe src="${movie.Trailer.replace("watch?v=", "embed/")}"
+            frameborder="0"
+            allowfullscreen
+            style="width: 100%; max-width: 560px; height: 315px; border-radius: 10px;"></iframe>
+  </div>
+` : `<em style="color: gray;">No trailer available</em>`}
+
+  </div>
+`;
+
+      resultDiv.innerHTML += card;
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    alert("An error occurred while searching.");
+  });
+}
+
+
+  </script>
+<script>
+  //for watchlist
+</script>
+</body>
+</html>

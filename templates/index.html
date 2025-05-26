@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, #2d2d2d 0%, #e33030 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-box {
+      background: rgba(17, 17, 17, 0.75);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+      color: white;
+      width: 320px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-box h2 {
+      margin-bottom: 30px;
+      font-weight: 500;
+      font-size: 24px;
+    }
+
+    .user-box {
+      position: relative;
+      margin-bottom: 30px;
+      text-align: left;
+    }
+
+    .user-box input {
+      width: 100%;
+      padding: 10px 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #fff;
+      outline: none;
+      color: #fff;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .user-box label {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      color: #fff;
+      font-size: 14px;
+      pointer-events: none;
+      transition: 0.3s ease;
+    }
+
+    .user-box input:focus ~ label,
+    .user-box input:valid ~ label {
+      top: -15px;
+      font-size: 12px;
+      color: #e33030;
+    }
+
+    .error-message {
+      color: #ff4d4d;
+      font-size: 12px;
+      margin-top: 5px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .error-visible {
+      opacity: 1;
+    }
+
+    .submit-btn {
+      position: relative;
+      background: transparent;
+      border: none;
+      color: #e33030;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      overflow: hidden;
+      z-index: 1;
+      transition: color 0.3s ease;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #e33030, transparent);
+      transition: left 0.5s ease;
+      z-index: -1;
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
+    .submit-btn:hover {
+      color: #fff;
+    }
+
+    .submit-btn:after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid #e33030;
+      z-index: -2;
+      border-radius: 6px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .submit-btn:hover:after {
+      box-shadow: 0 0 8px #e33030, 0 0 20px #e33030 inset;
+    }
+
+    /* 🔐 Show password toggle styling */
+    .show-password {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      margin: -10px 0 20px 0;
+      color: #ccc;
+      user-select: none;
+    }
+
+    .show-password input[type="checkbox"] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #888;
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .show-password input[type="checkbox"]::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      top: 4px;
+      left: 4px;
+      background: #e33030;
+      border-radius: 50%;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .show-password input[type="checkbox"]:checked {
+      border-color: #e33030;
+      box-shadow: 0 0 5px #e33030;
+    }
+
+    .show-password input[type="checkbox"]:checked::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login</h2>
+    <form action="/login" method="POST">
+      <div class="user-box">
+        <input type="text" name="username" id="username" required>
+        <label for="username">Username</label>
+        <div id="userError" class="error-message">Username is required</div>
+      </div>
+      <div class="user-box">
+        <input type="password" name="password" id="password" required>
+        <label for="password">Password</label>
+        <div id="passError" class="error-message">Password is required</div>
+      </div>
+
+      <!-- ✅ Show Password Toggle -->
+      <div class="show-password">
+        <input type="checkbox" id="togglePassword">
+        <label for="togglePassword">Show Password</label>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit</button>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById("loginForm");
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const userError = document.getElementById("userError");
+    const passError = document.getElementById("passError");
+  
+    // 🔐 Toggle show/hide password
+    togglePassword.addEventListener("change", () => {
+      password.type = togglePassword.checked ? "text" : "password";
+    });
+  
+    // 🚀 Login logic
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+  
+      let valid = true;
+  
+      if (username.value.trim() === "") {
+        userError.classList.add("error-visible");
+        valid = false;
+      } else {
+        userError.classList.remove("error-visible");
+      }
+  
+      if (password.value.trim() === "") {
+        passError.classList.add("error-visible");
+        valid = false;
+      } else {
+        passError.classList.remove("error-visible");
+      }
+  
+      if (valid) {
+        const user = username.value.trim();
+        const pass = password.value.trim();
+  
+        if (user === "user" && pass === "user") {
+          window.location.href = "\\templates\\search.html"; // 🎬 Movie Search App
+        } else if (user === "admin" && pass === "admin") {
+          window.location.href = "\\templates\\admin.html"; // ⚙️ Admin Panel
+        } else {
+          alert("❌ Invalid credentials. Use 'user' or 'admin'.");
+        }
+      }
+    });
+  </script>
+  
+</body>
+</html>
