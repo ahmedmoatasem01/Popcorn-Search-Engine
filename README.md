@@ -1,4 +1,4 @@
-# Popcorn-Search-Engine
+# PopcornQuery-Search-Engine
 
 Popcorn-Search-Engine is a powerful and interactive movie search engine built with **Python**, **Flask**, and **PyTerrier**, using **TMDb API** for real-time movie data. It supports multiple retrieval models and advanced features like semantic query expansion, watchlist management, and multimedia search.
 
