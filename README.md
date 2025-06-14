@@ -27,11 +27,12 @@ Popcorn-Search-Engine is a powerful and interactive movie search engine built wi
 ## 📦 Setup Instructions
 
 1. Clone the repo :
-   ```bash
+```bash
    git clone https://github.com/ahmedmoatasem01/Popcorn-Search-Engine
    cd Popcorn-Search-Engine
-   
+ ```
 2.Install the required libraries :
+```bash
 pip install flask
 pip install pyterrier
 pip install pandas
@@ -39,15 +40,26 @@ pip install requests
 pip install sentence-transformers
 pip install scikit-learn
 pip install python-dotenv
-
+```
 3. TMDb API key :
+```bash
 TMDB_API_KEY=your_tmdb_api_key_here
-
+```
 4.Run the application :
+```bash
 python app.py
+```
 
 5.Open your browser and go to :
+```bash
 http://127.0.0.1:5000
+```
+
+📬 Contact
+
+Ahmed Moatasem
+
+📧 ahmedmoatasem11@gmail.com
 
 
 
